@@ -130,13 +130,13 @@ cd ./backend
 cp .env.template .env
 
 # Install dependencies
-yarn install
+pnpm install
 
 # Install dependencies, setup database & seed data
-yarn install && yarn medusa db:create && yarn medusa db:migrate && yarn run seed && yarn medusa user -e admin@test.com -p supersecret -i admin
+pnpm install && pnpm medusa db:create && pnpm medusa db:migrate && pnpm run seed && pnpm medusa user -e admin@test.com -p supersecret -i admin
 
 # Start Medusa project - backend & admin
-yarn dev
+pnpm dev
 
 ## Setup Storefront
 
@@ -147,7 +147,7 @@ cd ../storefront
 cp .env.template .env
 
 # Install dependencies
-yarn install
+pnpm install
 ```
 
 #### Setup publishable key
@@ -162,7 +162,7 @@ yarn install
 
 ```
 # Start Medusa storefront
-yarn dev
+pnpm dev
 ```
 
 Visit the following links to see the Medusa storefront & admin
@@ -178,7 +178,7 @@ Some general guidelines for when you're updating this Starter to a newer version
 
 ## Update packages
 
-Run `yarn install` in both projects to update you're packages to the latest versions.
+Run `pnpm install` in both projects to update you're packages to the latest versions.
 
 ## Run migrations
 
