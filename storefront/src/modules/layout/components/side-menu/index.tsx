@@ -17,7 +17,13 @@ const SideMenuItems = {
   Cart: "/cart",
 }
 
-const SideMenu = ({ regions }: { regions: HttpTypes.StoreRegion[] | null }) => {
+const SideMenu = ({
+  regions,
+  storeName = "Medusa Store",
+}: {
+  regions: HttpTypes.StoreRegion[] | null
+  storeName?: string
+}) => {
   const toggleState = useToggleState()
 
   return (
@@ -91,7 +97,7 @@ const SideMenu = ({ regions }: { regions: HttpTypes.StoreRegion[] | null }) => {
                         />
                       </div>
                       <Text className="flex justify-between txt-compact-small">
-                        © {new Date().getFullYear()} Medusa Store. All rights
+                        © {new Date().getFullYear()} {storeName}. All rights
                         reserved.
                       </Text>
                     </div>

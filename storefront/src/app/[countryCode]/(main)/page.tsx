@@ -7,8 +7,9 @@ import { Suspense } from "react"
 
 export const dynamicParams = true
 
+// No `title` here on purpose: the homepage inherits the store name from the
+// root layout's `title.default`, which is fetched from the backend.
 export const metadata: Metadata = {
-  title: "Medusa Next.js Starter Template",
   description:
     "A performant frontend ecommerce starter template with Next.js 14 and Medusa.",
 }

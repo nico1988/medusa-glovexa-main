@@ -1,5 +1,6 @@
 import { retrieveCart } from "@/lib/data/cart"
 import { retrieveCustomer } from "@/lib/data/customer"
+import { retrieveStore } from "@/lib/data/store"
 import AccountButton from "@/modules/account/components/account-button"
 import CartButton from "@/modules/cart/components/cart-button"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
@@ -16,6 +17,8 @@ import { Suspense } from "react"
 export async function NavigationHeader() {
   const customer = await retrieveCustomer().catch(() => null)
   const cart = await retrieveCart()
+  const store = await retrieveStore()
+  const storeName = store?.name || "Medusa Store"
 
   return (
     <div className="sticky top-0 inset-x-0 group bg-white text-zinc-900 small:p-4 p-2 text-sm border-b duration-200 border-ui-border-base z-50">
@@ -28,7 +31,7 @@ export async function NavigationHeader() {
             >
               <h1 className="small:text-base text-sm font-medium flex items-center">
                 <LogoIcon className="inline mr-2" />
-                Medusa B2B Starter
+                {storeName}
               </h1>
             </LocalizedClientLink>
 

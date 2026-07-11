@@ -1,14 +1,20 @@
 import { retrieveCustomer } from "@/lib/data/customer"
 import { listRegions } from "@/lib/data/regions"
+import { retrieveStore } from "@/lib/data/store"
 import ProfileCard from "@/modules/account/components/profile-card"
 import SecurityCard from "@/modules/account/components/security-card"
 import { Heading } from "@medusajs/ui"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Profile",
-  description: "View and edit your Medusa Store profile.",
+export async function generateMetadata(): Promise<Metadata> {
+  const store = await retrieveStore()
+  const storeName = store?.name || "Medusa Store"
+
+  return {
+    title: "Profile",
+    description: `View and edit your ${storeName} profile.`,
+  }
 }
 
 export default async function Profile() {
