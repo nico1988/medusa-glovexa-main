@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { searchProducts } from "@/lib/data/search"
 import { getRegion } from "@/lib/data/regions"
 import ProductPreview from "@/modules/products/components/product-preview"
-import SkeletonProductGrid from "@/modules/skeletons/templates/skeleton-product-grid"
+import SkeletonSearchResults from "@/modules/skeletons/templates/skeleton-search-results"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -36,7 +36,7 @@ export default async function SearchPage(props: Params) {
           // immediately while MeiliSearch is queried on the server, and the
           // grid replaces the skeleton once the data arrives. `key={query}`
           // re-triggers the fallback on each new search term.
-          <Suspense key={query} fallback={<SkeletonProductGrid />}>
+          <Suspense key={query} fallback={<SkeletonSearchResults />}>
             <SearchResults query={query} countryCode={countryCode} />
           </Suspense>
         )}
