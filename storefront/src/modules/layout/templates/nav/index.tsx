@@ -1,6 +1,7 @@
 import { retrieveCart } from "@/lib/data/cart"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { retrieveStore } from "@/lib/data/store"
+import { PRIMARY_NAV_LINKS } from "@/modules/content/site-links"
 import AccountButton from "@/modules/account/components/account-button"
 import CartButton from "@/modules/cart/components/cart-button"
 import LocalizedClientLink from "@/modules/common/components/localized-client-link"
@@ -36,12 +37,22 @@ export async function NavigationHeader() {
             </LocalizedClientLink>
 
             <nav>
-              <ul className="space-x-4 hidden small:flex">
+              <ul className="space-x-4 hidden small:flex items-center">
                 <li>
                   <Suspense fallback={<SkeletonMegaMenu />}>
                     <MegaMenuWrapper />
                   </Suspense>
                 </li>
+                {PRIMARY_NAV_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <LocalizedClientLink
+                      href={link.href}
+                      className="hover:text-ui-fg-base hover:bg-neutral-100 rounded-full px-3 py-2"
+                    >
+                      {link.label}
+                    </LocalizedClientLink>
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>
