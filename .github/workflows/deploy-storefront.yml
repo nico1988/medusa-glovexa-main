@@ -1,0 +1,68 @@
+name: Deploy storefront
+
+# Builds the Next.js storefront with OpenNext and deploys it to Cloudflare
+# Workers via wrangler. Runs on pushes to main that touch storefront/**.
+#
+# NEXT_PUBLIC_* are build-time values baked into the bundle, so they must be
+# present in this job's environment. They are public by nature (shipped to the
+# browser) → store them as GitHub *Variables*. Only the API token and the
+# revalidation secret are sensitive → store them as GitHub *Secrets*.
+#
+# Required GitHub secrets (Settings → Secrets and variables → Actions → Secrets):
+#   CLOUDFLARE_API_TOKEN    token with the "Edit Cloudflare Workers" permission
+#   CLOUDFLARE_ACCOUNT_ID   your Cloudflare account id
+#   REVALIDATE_SECRET       Next.js on-demand revalidation secret
+#
+# Required GitHub variables (… → Variables):
+#   NEXT_PUBLIC_MEDUSA_BACKEND_URL       https://api.example.com
+#   NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY   pk_...
+#   NEXT_PUBLIC_BASE_URL                 https://shop.example.com
+#   NEXT_PUBLIC_DEFAULT_REGION           us
+#   NEXT_PUBLIC_MEDUSA_PAYMENTS_PUBLISHABLE_KEY   (optional)
+#   NEXT_PUBLIC_MEDUSA_PAYMENTS_ACCOUNT_ID        (optional)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "storefront/**"
+      - ".github/workflows/deploy-storefront.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-storefront
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: storefront
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: storefront/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build & deploy to Cloudflare
+        run: pnpm cf:deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          NEXT_PUBLIC_MEDUSA_BACKEND_URL: ${{ vars.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
+          NEXT_PUBLIC_DEFAULT_REGION: ${{ vars.NEXT_PUBLIC_DEFAULT_REGION }}
+          NEXT_PUBLIC_MEDUSA_PAYMENTS_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_MEDUSA_PAYMENTS_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_MEDUSA_PAYMENTS_ACCOUNT_ID: ${{ vars.NEXT_PUBLIC_MEDUSA_PAYMENTS_ACCOUNT_ID }}
+          REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}

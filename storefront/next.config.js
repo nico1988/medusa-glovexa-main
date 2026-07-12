@@ -2,6 +2,20 @@ const checkEnvVariables = require("./check-env-variables")
 
 checkEnvVariables()
 
+// Allow next/image to load product images served from the Medusa backend
+// (its public HTTPS domain in production). Derived from the backend URL so we
+// don't hardcode the host.
+const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL
+const backendImagePattern = (() => {
+  if (!backendUrl) return []
+  try {
+    const u = new URL(backendUrl)
+    return [{ protocol: u.protocol.replace(":", ""), hostname: u.hostname }]
+  } catch {
+    return []
+  }
+})()
+
 /**
  * @type {import('next').NextConfig}
  */
@@ -49,7 +63,8 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
-      }
+      },
+      ...backendImagePattern,
     ],
   },
 }

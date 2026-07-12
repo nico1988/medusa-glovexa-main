@@ -1,0 +1,15 @@
+# Rebuilt inside the image
+node_modules
+.medusa
+
+# Secrets & local config
+.env
+.env.*
+!.env.template
+
+# VCS & misc
+.git
+.gitignore
+*.log
+coverage
+.DS_Store

@@ -1,0 +1,12 @@
+# Caddy automatically obtains & renews a Let's Encrypt TLS certificate for
+# BACKEND_DOMAIN and reverse-proxies HTTPS traffic to the Medusa backend
+# container. Requires: a DNS A record for BACKEND_DOMAIN pointing at this VM,
+# and ports 80/443 open on the firewall.
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$BACKEND_DOMAIN} {
+	reverse_proxy backend:9000
+}

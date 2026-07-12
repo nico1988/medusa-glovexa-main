@@ -1,0 +1,49 @@
+name: Deploy backend
+
+# Deploys the Medusa backend by SSHing into the GCP VM and having it rebuild
+# the `backend` container from the latest code. The image is built ON the VM;
+# no image registry is involved. App secrets (DB password, JWT, etc.) live in
+# the VM's own `.env` — they are NOT stored in GitHub.
+#
+# Required GitHub secrets (Settings → Secrets and variables → Actions):
+#   VM_SSH_HOST   external IP or domain of the VM
+#   VM_SSH_USER   SSH user
+#   VM_SSH_KEY    SSH private key (PEM), matching an authorized_keys entry on the VM
+#   VM_SSH_PORT   (optional) SSH port, defaults to 22
+# Optional GitHub variable:
+#   VM_PROJECT_PATH   absolute path to the cloned repo on the VM (default below)
+
+on:
+  push:
+    branches: [main]
+    # Only redeploy when something the backend image cares about changes.
+    paths:
+      - "backend/**"
+      - "docker-compose.prod.yml"
+      - "Caddyfile"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VM_SSH_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: ${{ secrets.VM_SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ vars.VM_PROJECT_PATH || '~/b2b-starter-medusa' }}"
+            git pull --ff-only
+            docker compose -f docker-compose.prod.yml up -d --build backend
+            # migrations run automatically via the container entrypoint
+            docker image prune -f
