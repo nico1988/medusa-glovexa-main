@@ -51,6 +51,36 @@ const meilisearchPlugins = process.env.MEILISEARCH_HOST
     ]
   : [];
 
+// Infrastructure modules. When REDIS_URL is set (production), use the
+// Redis-backed cache / event bus / workflow engine so state survives restarts
+// and the backend can scale horizontally. Otherwise fall back to in-memory,
+// which keeps local dev and the Jest test suites dependency-free.
+const REDIS_URL = process.env.REDIS_URL;
+
+const infraModules = REDIS_URL
+  ? {
+      [Modules.CACHE]: {
+        resolve: "@medusajs/medusa/cache-redis",
+        options: { redisUrl: REDIS_URL },
+      },
+      [Modules.EVENT_BUS]: {
+        resolve: "@medusajs/medusa/event-bus-redis",
+        options: { redisUrl: REDIS_URL },
+      },
+      [Modules.WORKFLOW_ENGINE]: {
+        resolve: "@medusajs/medusa/workflow-engine-redis",
+        options: { redis: { url: REDIS_URL } },
+      },
+    }
+  : {
+      [Modules.CACHE]: {
+        resolve: "@medusajs/medusa/cache-inmemory",
+      },
+      [Modules.WORKFLOW_ENGINE]: {
+        resolve: "@medusajs/medusa/workflow-engine-inmemory",
+      },
+    };
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -76,11 +106,6 @@ module.exports = defineConfig({
     [CUSTOMIZATION_MODULE]: {
       resolve: "./modules/customization",
     },
-    [Modules.CACHE]: {
-      resolve: "@medusajs/medusa/cache-inmemory",
-    },
-    [Modules.WORKFLOW_ENGINE]: {
-      resolve: "@medusajs/medusa/workflow-engine-inmemory",
-    },
+    ...infraModules,
   },
 });

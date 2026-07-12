@@ -56,3 +56,6 @@ Thumbs.db
 **/.DS_Store
 
 .playwright-mcp
+# Production docker-compose env (secrets)
+.env
+.env.production
