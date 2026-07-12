@@ -1,0 +1,27 @@
+# Local dev services for the B2B starter.
+#
+# MeiliSearch powers product search (indexed by the backend via
+# @rokmohar/medusa-plugin-meilisearch). Postgres is intentionally NOT defined
+# here because this environment already runs one standalone ("medusa-pg" on
+# 5432); add a postgres service here if you prefer a single `docker compose up`.
+#
+#   docker compose up -d meilisearch
+#   # UI/health: http://localhost:7700  (send header: Authorization: Bearer <MEILI_MASTER_KEY>)
+
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: medusa-meili
+    ports:
+      - "7700:7700"
+    environment:
+      # Dev-only key. In production use a long random master key and give the
+      # storefront a scoped search-only key instead of the master key.
+      MEILI_MASTER_KEY: masterKey_dev
+      MEILI_ENV: development
+    volumes:
+      - meili_data:/meili_data
+    restart: unless-stopped
+
+volumes:
+  meili_data:

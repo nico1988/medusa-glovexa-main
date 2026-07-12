@@ -38,9 +38,15 @@ importers:
       '@mikro-orm/postgresql':
         specifier: 6.4.3
         version: 6.4.3(@mikro-orm/core@6.4.3)
+      '@rokmohar/medusa-plugin-meilisearch':
+        specifier: ^1.4.3
+        version: 1.4.3(h5j6chdqhiweryyhzjvxjwauiq)
       awilix:
         specifier: ^8.0.1
         version: 8.0.1
+      meilisearch:
+        specifier: ^0.59.0
+        version: 0.59.0
       pg:
         specifier: ^8.13.0
         version: 8.22.0
@@ -2276,6 +2282,19 @@ packages:
     resolution: {integrity: sha512-so+DHzZKsoOcoXrILB4rqDkMDy7NLMErRdOxvzvOKb507YINKUP4Di+shbTZDhSE/pBZ+vr7XGIpcOO0VLSA+Q==}
     engines: {node: '>=14.0.0'}
 
+  '@rokmohar/medusa-plugin-meilisearch@1.4.3':
+    resolution: {integrity: sha512-+iStv5sc2vuLk+O7OcQLlNR99fMBhGdBOJMCmDJYoTFGhzBA4ZEV18IIr2xqxUDgdQo1haF0TtYv3JmRQUuY1w==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      '@medusajs/admin-sdk': ^2.15.2
+      '@medusajs/framework': ^2.15.2
+      '@medusajs/medusa': ^2.15.2
+      '@medusajs/ui': ^4.1.12
+      '@tanstack/react-query': 5.64.2
+      awilix: ^8.0.1
+      react: ^18
+      react-dom: ^18
+
   '@rolldown/pluginutils@1.0.0-beta.27':
     resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
 
@@ -4325,6 +4344,13 @@ packages:
   media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
+
+  meilisearch@0.56.0:
+    resolution: {integrity: sha512-kBXba8DcSrLWHYqopCm2JL90oBy97VdIfHkP1ii7/eHufeEEEk9Zu5Vv/IFQpNzmhEpWszVFVlGvZoI6QJeGzA==}
+
+  meilisearch@0.59.0:
+    resolution: {integrity: sha512-9KxasX98+qYhOVa4PPeaX/yY/ukM9DMuJlUJRgJVwrdCkWw+mkkiIh6EJmYyCxU8nXhj0VEzdYr3dNUJT1BQow==}
+    engines: {node: ^20.19.0 || >=22.12.0}
 
   merge-descriptors@1.0.3:
     resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
@@ -8506,6 +8532,18 @@ snapshots:
 
   '@remix-run/router@1.13.1': {}
 
+  '@rokmohar/medusa-plugin-meilisearch@1.4.3(h5j6chdqhiweryyhzjvxjwauiq)':
+    dependencies:
+      '@medusajs/admin-sdk': 2.8.4
+      '@medusajs/framework': 2.8.4(@medusajs/cli@2.8.4(@mikro-orm/core@6.4.3)(@mikro-orm/knex@6.4.3(@mikro-orm/core@6.4.3)(pg@8.22.0))(@mikro-orm/migrations@6.4.3(@mikro-orm/core@6.4.3)(@types/node@20.19.43)(pg@8.22.0))(@mikro-orm/postgresql@6.4.3(@mikro-orm/core@6.4.3))(@types/node@20.19.43)(awilix@8.0.1)(ioredis@5.11.1)(pg@8.22.0)(vite@5.4.21(@types/node@20.19.43)))(@mikro-orm/cli@6.4.3(pg@8.22.0))(@mikro-orm/core@6.4.3)(@mikro-orm/knex@6.4.3(@mikro-orm/core@6.4.3)(pg@8.22.0))(@mikro-orm/migrations@6.4.3(@mikro-orm/core@6.4.3)(@types/node@20.19.43)(pg@8.22.0))(@mikro-orm/postgresql@6.4.3(@mikro-orm/core@6.4.3))(awilix@8.0.1)(ioredis@5.11.1)(pg@8.22.0)(vite@5.4.21(@types/node@20.19.43))
+      '@medusajs/medusa': 2.8.4(5icha52urgeinmoxzdeu7w6a5m)
+      '@medusajs/ui': 4.0.14(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      '@tanstack/react-query': 5.64.2(react@18.3.1)
+      awilix: 8.0.1
+      meilisearch: 0.56.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@rolldown/pluginutils@1.0.0-beta.27': {}
 
   '@rollup/rollup-android-arm-eabi@4.62.2':
@@ -10812,6 +10850,10 @@ snapshots:
   meant@1.0.3: {}
 
   media-typer@0.3.0: {}
+
+  meilisearch@0.56.0: {}
+
+  meilisearch@0.59.0: {}
 
   merge-descriptors@1.0.3: {}
 
