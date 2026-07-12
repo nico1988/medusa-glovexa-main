@@ -15,6 +15,15 @@ const nextConfig = {
       fullUrl: true,
     },
   },
+  // Konva ships a Node build that requires the optional native `canvas` package;
+  // the editor is client-only, so stub it out to keep the bundle resolving.
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      canvas: false,
+    }
+    return config
+  },
   images: {
     remotePatterns: [
       {

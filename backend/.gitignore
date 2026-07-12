@@ -25,3 +25,6 @@ build
 !.yarn/versions
 
 .medusa
+
+# Runtime file uploads (local File module provider)
+/static
