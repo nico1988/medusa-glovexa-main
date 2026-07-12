@@ -24,6 +24,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  eslint: {
+    // A broken lint rule can crash `next build`; linting runs separately via
+    // `pnpm lint`, so don't let it block production builds.
+    ignoreDuringBuilds: true,
+  },
   logging: {
     fetches: {
       fullUrl: true,
