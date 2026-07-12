@@ -17,6 +17,8 @@ export default function CustomOemPage() {
     <ContentPage
       title="Custom & OEM / Private Label"
       lead="Build your own glove line. We manufacture to your specification — from material and construction to branding and retail-ready packaging."
+      heroImage="/hero-custom-oem.jpg"
+      heroAlt="Worker in heavy-duty leather gloves at a manufacturing workstation"
     >
       <ContentSection heading="What we can customise">
         <ContentList

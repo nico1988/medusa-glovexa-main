@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui"
+import Image from "next/image"
 import React from "react"
 
 /**
@@ -13,6 +14,13 @@ type ContentPageProps = {
   children: React.ReactNode
   /** Optional note shown under the title, e.g. "Last updated: ...". */
   meta?: string
+  /**
+   * Optional image (path under /public or an allowed remote host). When set,
+   * the title + lead are rendered as an overlaid hero band instead of a plain
+   * text header — used by the marketing landing pages (Wholesale, Our Story…).
+   */
+  heroImage?: string
+  heroAlt?: string
 }
 
 export const ContentPage = ({
@@ -20,7 +28,50 @@ export const ContentPage = ({
   lead,
   meta,
   children,
+  heroImage,
+  heroAlt,
 }: ContentPageProps) => {
+  if (heroImage) {
+    return (
+      <div className="pb-12 md:pb-20">
+        <div className="relative h-[280px] md:h-[380px] w-full overflow-hidden border-b border-ui-border-base bg-neutral-900">
+          <Image
+            src={heroImage}
+            alt={heroAlt ?? title}
+            fill
+            quality={100}
+            priority
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+          <div className="content-container relative h-full flex flex-col justify-end pb-8 md:pb-12">
+            <div className="max-w-3xl">
+              <Heading
+                level="h1"
+                className="text-3xl md:text-5xl text-white font-normal"
+              >
+                {title}
+              </Heading>
+              {lead && (
+                <p className="text-base md:text-lg text-white/85 leading-relaxed mt-4">
+                  {lead}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="content-container pt-12 md:pt-16">
+          <div className="max-w-3xl mx-auto">
+            {meta && <p className="txt-small text-ui-fg-muted mb-6">{meta}</p>}
+            <div className="flex flex-col gap-10 text-ui-fg-subtle leading-relaxed">
+              {children}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="content-container py-12 md:py-20">
       <div className="max-w-3xl mx-auto">

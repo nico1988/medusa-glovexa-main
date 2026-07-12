@@ -15,6 +15,8 @@ export default function OurStoryPage() {
     <ContentPage
       title="Our Story"
       lead="We make and supply gloves that businesses rely on — from safety and industrial protection to leather, sport and medical ranges."
+      heroImage="/hero-our-story.jpg"
+      heroAlt="Premium leather work gloves laid out on a workbench"
     >
       <ContentSection heading="Who we are">
         <p>

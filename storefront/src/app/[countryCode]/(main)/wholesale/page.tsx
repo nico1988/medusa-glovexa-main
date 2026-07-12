@@ -17,6 +17,8 @@ export default function WholesalePage() {
     <ContentPage
       title="Wholesale & Bulk Ordering"
       lead="Competitive trade pricing for distributors, retailers, workplaces and resellers — with volume discounts and dedicated account support."
+      heroImage="/hero-wholesale.jpg"
+      heroAlt="Warehouse stocked with pallets of gloves ready for bulk orders"
     >
       <ContentSection heading="Who we supply">
         <ContentList
