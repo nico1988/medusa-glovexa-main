@@ -6,9 +6,13 @@ import RelatedProducts from "@/modules/products/components/related-products"
 import ProductInfo from "@/modules/products/templates/product-info"
 import SkeletonRelatedProducts from "@/modules/skeletons/templates/skeleton-related-products"
 import { notFound } from "next/navigation"
-import React, { Suspense } from "react"
+import { Suspense } from "react"
 import ProductActionsWrapper from "./product-actions-wrapper"
 import ProductFacts from "../components/product-facts"
+import { getDesignTemplate } from "@/lib/data/customization"
+import { getProductCustomization } from "@/modules/customization/lib/product-customization"
+import CustomizeEntry from "@/modules/customization/components/customize-entry"
+import Configurator from "@/modules/customization/components/configurator"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -16,14 +20,22 @@ type ProductTemplateProps = {
   countryCode: string
 }
 
-const ProductTemplate: React.FC<ProductTemplateProps> = ({
+const ProductTemplate = async ({
   product,
   region,
   countryCode,
-}) => {
+}: ProductTemplateProps) => {
   if (!product || !product.id) {
     return notFound()
   }
+
+  const { isCustomizable, moq, setupFee } = getProductCustomization(
+    product.metadata as Record<string, unknown> | null
+  )
+  // Has a design template → online editor; customizable without one → configurator.
+  const designTemplate = isCustomizable
+    ? await getDesignTemplate(product.id)
+    : null
 
   return (
     <div className="flex flex-col gap-y-2 my-2">
@@ -34,11 +46,35 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         <ImageGallery product={product} />
         <div className="flex flex-col bg-neutral-100 w-full gap-6 items-start justify-center small:p-20 p-6 h-full">
           <ProductInfo product={product} />
+          {isCustomizable && designTemplate && (
+            <CustomizeEntry
+              handle={product.handle!}
+              moq={moq}
+              setupFee={setupFee}
+            />
+          )}
           <Suspense
             fallback={<ProductActions product={product} region={region} />}
           >
             <ProductActionsWrapper id={product.id} region={region} />
           </Suspense>
+          {isCustomizable && !designTemplate && (
+            <Configurator
+              product={{
+                id: product.id,
+                title: product.title,
+                handle: product.handle!,
+                variants: (product.variants ?? []).map((v) => ({
+                  id: v.id,
+                  title: v.title ?? "",
+                  sku: v.sku ?? null,
+                })),
+              }}
+              countryCode={countryCode}
+              moq={moq}
+              setupFee={setupFee}
+            />
+          )}
           <ProductFacts product={product} />
         </div>
       </div>
