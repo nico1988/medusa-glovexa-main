@@ -176,8 +176,8 @@ touch `storefront/**`. It builds with OpenNext and deploys to Cloudflare
 Workers via wrangler — fully independent of the backend workflow.
 
 **Secrets vs variables:** `NEXT_PUBLIC_*` are baked into the browser bundle, so
-they're public → GitHub **Variables**. Only the API token and revalidation
-secret are sensitive → GitHub **Secrets**.
+they're public → GitHub **Variables**. Only the Cloudflare API token is
+sensitive → GitHub **Secrets**.
 
 ### 4.1 Create a Cloudflare API token
 Cloudflare dashboard → My Profile → API Tokens → Create Token → use the
@@ -191,7 +191,6 @@ Repo → Settings → Secrets and variables → Actions → **Secrets**:
 |---|---|
 | `CLOUDFLARE_API_TOKEN` | the token from 4.1 |
 | `CLOUDFLARE_ACCOUNT_ID` | your Cloudflare account id |
-| `REVALIDATE_SECRET` | Next.js on-demand revalidation secret |
 
 ### 4.3 Add GitHub variables
 … → Actions → **Variables**:
