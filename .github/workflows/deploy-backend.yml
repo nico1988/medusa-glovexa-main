@@ -2,14 +2,15 @@ name: Deploy backend
 
 # Deploys the Medusa backend by SSHing into the GCP VM and having it rebuild
 # the `backend` container from the latest code. The image is built ON the VM;
-# no image registry is involved. App secrets (DB password, JWT, etc.) live in
-# the VM's own `.env` — they are NOT stored in GitHub.
+# no image registry is involved. App secrets (DB password, JWT, etc.) are
+# stored as one base64-encoded GitHub secret and installed as the VM's `.env`.
 #
 # Required GitHub secrets (Settings → Secrets and variables → Actions):
 #   VM_SSH_HOST   external IP or domain of the VM
 #   VM_SSH_USER   SSH user
 #   VM_SSH_KEY    SSH private key (PEM), matching an authorized_keys entry on the VM
 #   VM_SSH_PORT   (optional) SSH port, defaults to 22
+#   BACKEND_ENV_FILE_B64  base64-encoded production .env file
 # Optional GitHub variable:
 #   VM_PROJECT_PATH   path to the cloned repo on the VM (default below). A
 #                     leading ~ is expanded to $HOME, so both ~/foo and
@@ -36,12 +37,15 @@ jobs:
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1
+        env:
+          BACKEND_ENV_FILE_B64: ${{ secrets.BACKEND_ENV_FILE_B64 }}
         with:
           host: ${{ secrets.VM_SSH_HOST }}
           username: ${{ secrets.VM_SSH_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: ${{ secrets.VM_SSH_PORT || 22 }}
-          script_stop: true
+          command_timeout: 15m
+          envs: BACKEND_ENV_FILE_B64
           script: |
             set -e
             whoami
@@ -53,12 +57,31 @@ jobs:
             PROJECT_PATH="${PROJECT_PATH/#\~/$HOME}"
             cd "$PROJECT_PATH"
             git pull --ff-only
-            # Reclaim build cache and dangling images BEFORE building so failed
-            # runs don't accumulate and fill the VM disk ("no space left on
-            # device"). Named volumes (e.g. pgdata) are never touched — no
-            # --volumes flag is used anywhere here.
-            docker builder prune -f
-            docker image prune -f
-            docker compose -f docker-compose.prod.yml up -d --build backend
+
+            if [ -z "$BACKEND_ENV_FILE_B64" ]; then
+              echo "ERROR: GitHub secret BACKEND_ENV_FILE_B64 is missing."
+              exit 1
+            fi
+            printf '%s' "$BACKEND_ENV_FILE_B64" | base64 --decode > .env.tmp
+            chmod 600 .env.tmp
+            mv .env.tmp .env
+
+            COMPOSE="docker compose --env-file .env -f docker-compose.prod.yml"
+            $COMPOSE config --quiet
+
+            # Failed builds and old tagged images accumulate on this small VM.
+            # Remove everything unused before building. Named volumes (pgdata,
+            # redisdata, etc.) are never touched because --volumes is omitted.
+            df -h /
+            docker system df
+            docker builder prune -af
+            docker container prune -f
+            docker image prune -af
+            df -h /
+
+            # Show service state and recent backend logs if startup/health fails.
+            trap '$COMPOSE ps; $COMPOSE logs --tail=100 backend' ERR
+            $COMPOSE up -d --build --wait --wait-timeout 180 backend
             # migrations run automatically via the container entrypoint
-            docker image prune -f
+            $COMPOSE ps backend
+            docker image prune -af

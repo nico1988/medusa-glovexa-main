@@ -120,15 +120,15 @@ Three options, pick one:
 `backend/**`, `docker-compose.prod.yml`, or `Caddyfile`. It SSHes into the VM
 and has it rebuild the `backend` container from the latest code.
 
-**Where secrets live:** the image is built **on the VM** using the VM's own
-`.env`, so app secrets (DB password, JWT, cookie, Meili key) **never enter
-GitHub**. GitHub only needs SSH credentials to reach the VM.
+**Where secrets live:** the image is built **on the VM**. The production `.env`
+is stored in GitHub as one base64-encoded Actions secret and is installed on
+the VM with mode `600` during each deployment.
 
 ### 3.1 Prerequisites on the VM
 The repo must already be cloned on the VM and its `.env` filled in (section 1).
 ```bash
-git clone <your-repo> ~/b2b-starter-medusa
-cd ~/b2b-starter-medusa && cp .env.production.template .env   # then fill it in
+git clone <your-repo> ~/medusa-glovexa-main
+cd ~/medusa-glovexa-main && cp .env.production.template .env   # then fill it in
 ```
 > Private repo? Give the VM read access (a GitHub deploy key) so `git pull` works unattended.
 
@@ -149,6 +149,7 @@ Repo → Settings → Secrets and variables → Actions → **Secrets**:
 | `VM_SSH_USER` | SSH user |
 | `VM_SSH_KEY` | contents of the **private** `deploy_key` file |
 | `VM_SSH_PORT` | (optional) SSH port; omit for 22 |
+| `BACKEND_ENV_FILE_B64` | `base64 -w0 .env` output (on macOS: `base64 < .env \| tr -d '\\n'`) |
 
 And under **Variables** (optional):
 
@@ -160,10 +161,15 @@ And under **Variables** (optional):
 On each qualifying push (or manual **Run workflow**), the VM executes:
 ```bash
 git pull --ff-only
-docker compose -f docker-compose.prod.yml up -d --build backend
-docker image prune -f
+docker builder prune -af
+docker container prune -f
+docker image prune -af
+docker compose --env-file .env -f docker-compose.prod.yml up -d --build --wait backend
 ```
-Migrations run automatically via the container entrypoint. Watch progress in
+The cleanup removes unused build cache, stopped containers, and unused images;
+it never removes named data volumes. Migrations run automatically via the
+container entrypoint, and deployment waits for the backend `/health` endpoint.
+Watch progress in
 the Actions tab; check the result on the VM with
 `docker compose -f docker-compose.prod.yml logs -f backend`.
 
