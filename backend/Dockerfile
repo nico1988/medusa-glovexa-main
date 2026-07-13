@@ -9,8 +9,11 @@ WORKDIR /app
 # pnpm via corepack (version pinned to match the repo)
 RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 
-# Install dependencies first for better layer caching
-COPY package.json pnpm-lock.yaml ./
+# Install dependencies first for better layer caching. .npmrc must be present
+# for this install: it sets node-linker=hoisted, which Medusa's admin build
+# requires so the vite/rollup step can resolve transitive deps like
+# @medusajs/dashboard from the top-level node_modules.
+COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
 # Build the app. `medusa build` compiles a self-contained server into
@@ -29,6 +32,10 @@ RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 
 # Copy the compiled server produced by `medusa build`
 COPY --from=builder /app/.medusa/server ./
+
+# Keep the same hoisted node-linker for the production install so module
+# resolution at runtime matches the build.
+COPY .npmrc ./
 
 # Install ONLY production dependencies for the compiled server
 RUN pnpm install --prod
