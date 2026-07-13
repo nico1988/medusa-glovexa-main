@@ -53,6 +53,12 @@ jobs:
             PROJECT_PATH="${PROJECT_PATH/#\~/$HOME}"
             cd "$PROJECT_PATH"
             git pull --ff-only
+            # Reclaim build cache and dangling images BEFORE building so failed
+            # runs don't accumulate and fill the VM disk ("no space left on
+            # device"). Named volumes (e.g. pgdata) are never touched — no
+            # --volumes flag is used anywhere here.
+            docker builder prune -f
+            docker image prune -f
             docker compose -f docker-compose.prod.yml up -d --build backend
             # migrations run automatically via the container entrypoint
             docker image prune -f
