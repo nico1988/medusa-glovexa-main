@@ -11,7 +11,9 @@ name: Deploy backend
 #   VM_SSH_KEY    SSH private key (PEM), matching an authorized_keys entry on the VM
 #   VM_SSH_PORT   (optional) SSH port, defaults to 22
 # Optional GitHub variable:
-#   VM_PROJECT_PATH   absolute path to the cloned repo on the VM (default below)
+#   VM_PROJECT_PATH   path to the cloned repo on the VM (default below). A
+#                     leading ~ is expanded to $HOME, so both ~/foo and
+#                     /home/user/foo work.
 
 on:
   push:
@@ -44,8 +46,12 @@ jobs:
             set -e
             whoami
             pwd
-            ls -la
-            cd "${{ vars.VM_PROJECT_PATH || '~/b2b-starter-medusa' }}"
+            # `~` is not expanded inside double quotes, so expand a leading ~
+            # to $HOME ourselves — otherwise cd looks for a dir literally
+            # named "~" and fails even when the path exists.
+            PROJECT_PATH="${{ vars.VM_PROJECT_PATH || '$HOME/medusa-glovexa-main' }}"
+            PROJECT_PATH="${PROJECT_PATH/#\~/$HOME}"
+            cd "$PROJECT_PATH"
             git pull --ff-only
             docker compose -f docker-compose.prod.yml up -d --build backend
             # migrations run automatically via the container entrypoint
