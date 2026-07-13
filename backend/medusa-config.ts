@@ -57,7 +57,11 @@ const meilisearchPlugins = process.env.MEILISEARCH_HOST
 // which keeps local dev and the Jest test suites dependency-free.
 const REDIS_URL = process.env.REDIS_URL;
 
-const infraModules = REDIS_URL
+// Annotate the shared shape so the two branches don't produce a union type,
+// which `defineConfig`'s `modules` input rejects (TS2322).
+type InfraModule = { resolve: string; options?: Record<string, unknown> };
+
+const infraModules: Record<string, InfraModule> = REDIS_URL
   ? {
       [Modules.CACHE]: {
         resolve: "@medusajs/medusa/cache-redis",
