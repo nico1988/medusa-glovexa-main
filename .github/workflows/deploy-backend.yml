@@ -79,9 +79,22 @@ jobs:
             docker image prune -af
             df -h /
 
-            # Show service state and recent backend logs if startup/health fails.
-            trap '$COMPOSE ps; $COMPOSE logs --tail=100 backend' ERR
-            $COMPOSE up -d --build --wait --wait-timeout 180 backend
+            # Show service state and recent application/proxy logs if startup fails.
+            trap '$COMPOSE ps; $COMPOSE logs --tail=100 backend caddy' ERR
+            $COMPOSE up -d --build --wait --wait-timeout 180 backend caddy
             # migrations run automatically via the container entrypoint
-            $COMPOSE ps backend
+            $COMPOSE ps backend caddy
             docker image prune -af
+
+      - name: Verify public backend health
+        run: |
+          for attempt in {1..18}; do
+            if curl --fail --silent --show-error \
+              --connect-timeout 5 --max-time 10 \
+              https://api.ccsunny.cn/health; then
+              exit 0
+            fi
+            echo "Public health check attempt $attempt failed; retrying..."
+            sleep 10
+          done
+          exit 1

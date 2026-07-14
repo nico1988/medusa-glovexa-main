@@ -164,7 +164,7 @@ git pull --ff-only
 docker builder prune -af
 docker container prune -f
 docker image prune -af
-docker compose --env-file .env -f docker-compose.prod.yml up -d --build --wait backend
+docker compose --env-file .env -f docker-compose.prod.yml up -d --build --wait backend caddy
 ```
 The cleanup removes unused build cache, stopped containers, and unused images;
 it never removes named data volumes. Migrations run automatically via the
