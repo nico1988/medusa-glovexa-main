@@ -88,6 +88,14 @@ const infraModules: Record<string, InfraModule> = REDIS_URL
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    // The production stack connects to Postgres over Docker's private network.
+    // Medusa otherwise treats the `postgres` hostname as remote and enables
+    // SSL, but the bundled Postgres service does not expose TLS.
+    databaseDriverOptions: {
+      connection: {
+        ssl: false,
+      },
+    },
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
