@@ -69,9 +69,16 @@ jobs:
             COMPOSE="docker compose --env-file .env -f docker-compose.prod.yml"
             $COMPOSE config --quiet
 
-            # Failed builds and old tagged images accumulate on this small VM.
-            # Remove everything unused before building. Named volumes (pgdata,
-            # redisdata, etc.) are never touched because --volumes is omitted.
+            # This 10 GB VM cannot hold the old runtime image, the build
+            # workspace, and the newly unpacked image at the same time. Remove
+            # only the backend container/image before building; data services
+            # and all named volumes remain running and untouched.
+            $COMPOSE stop backend || true
+            $COMPOSE rm -f backend || true
+            docker image rm -f b2b-medusa-backend:latest || true
+
+            # Failed builds and other unused images also accumulate on the VM.
+            # Named volumes are never touched because --volumes is omitted.
             df -h /
             docker system df
             docker builder prune -af

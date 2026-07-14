@@ -161,14 +161,19 @@ And under **Variables** (optional):
 On each qualifying push (or manual **Run workflow**), the VM executes:
 ```bash
 git pull --ff-only
+docker compose --env-file .env -f docker-compose.prod.yml stop backend
+docker compose --env-file .env -f docker-compose.prod.yml rm -f backend
+docker image rm -f b2b-medusa-backend:latest
 docker builder prune -af
 docker container prune -f
 docker image prune -af
 docker compose --env-file .env -f docker-compose.prod.yml up -d --build --wait backend caddy
 ```
 The cleanup removes unused build cache, stopped containers, and unused images;
-it never removes named data volumes. Migrations run automatically via the
-container entrypoint, and deployment waits for the backend `/health` endpoint.
+it never removes named data volumes. The small 10 GB VM requires backend
+downtime during the image build so the old and new runtime images do not need
+to coexist. Migrations run automatically via the container entrypoint, and
+deployment waits for the backend `/health` endpoint.
 Watch progress in
 the Actions tab; check the result on the VM with
 `docker compose -f docker-compose.prod.yml logs -f backend`.
